@@ -22,6 +22,22 @@ pipeline {
                     buildJar()
                 }
             }
-        }            
+        }
+
+        stage("build image") {
+            steps {
+                script {
+                    buildImage 'mauriciocamilo/demo-app:jma-3.0'
+                }
+            }
+        }
+
+        stage("deploy") {
+            steps {
+                script {
+                    gv.deployApp()
+                }
+            }
+        }               
     }
 } 
