@@ -23,7 +23,8 @@ pipeline {
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
                     sh 'docker push mauriciocamilo/demo-app:jma-4.0'                    }
                 }
-        }
+            }
+        }    
         
         stage('deploy') {
             steps {
@@ -31,6 +32,7 @@ pipeline {
                      echo 'deploying docker image...'
                 }
             }
-         }
-     }
+        }
+    }
 }    
+
