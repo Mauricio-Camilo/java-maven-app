@@ -3,37 +3,32 @@ pipeline {
     
     agent any
     tools {
-        maven 'maven-3.9'
+        maven 'Maven'
     }
 
-    stages {
-        stage ("init") {
-            steps {
-                script {
-                    gv = load "script.groovy"
-                }
-            }
-        }
-        
-        stage('build jar') {
+    stages {        
+        stage('build app') {
             steps {
                script {
-                 gv.buildJar() 
-               }
+                echo 'building the application...'
+                sh 'mvn package'               }
             }
         }
         stage('build image') {
             steps {
                 script {
-                    gv.buildImage() 
-                }
+                    echo "building the docker image..."
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh 'docker build -t mauriciocamilo/demo-app:jma-4.0 .'
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push mauriciocamilo/demo-app:jma-4.0'                    }
                 }
         }
         
         stage('deploy') {
             steps {
                 script {
-                    gv.deployApp() 
+                     echo 'deploying docker image...'
                 }
             }
          }
