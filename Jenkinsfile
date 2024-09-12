@@ -59,7 +59,12 @@ pipeline {
                         sh 'git branch'
                         sh 'git config --list'
 
-                        sh "git remote set-url origin https://${USER}:${PASS}@github.com/Mauricio-Camilo/java-maven-app"
+                        // Replace '@' in email with '%40' for URL encoding
+                        def encodedUser = USER.replace('@', '%40')
+                
+                        // Set the remote URL using encoded user
+                        sh "git remote set-url origin https://${encodedUser}:${PASS}@github.com/Mauricio-Camilo/java-maven-app"
+
                         sh 'git add .'
                         sh 'git commit -m "ci: version bump"'
                         sh 'git push origin HEAD:jenkins-version'
