@@ -1,41 +1,33 @@
-def gv 
-pipeline {
-    
-    agent any
-    tools {
-        maven 'maven-3.9'
-    }
+#!/usr/bin/env groovy
 
+pipeline {
+    agent any
     stages {
-        stage ("init") {
-            steps {
-                script {
-                    gv = load "script.groovy"
-                }
-            }
-        }
-        
-        stage('build jar') {
+        stage('build app') {
             steps {
                script {
-                 gv.buildJar() 
+                   echo "building the application..."
                }
             }
         }
         stage('build image') {
             steps {
                 script {
-                    gv.buildImage() 
+                    echo "building the docker image..."
                 }
             }
         }
-        
         stage('deploy') {
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws_secret_access_key')
+            }
             steps {
                 script {
-                    gv.deployApp() 
+                   echo 'deploying docker image...'
+                   sh 'kubectl create deployment nginx-deployment --image=nginx'
                 }
             }
-         }
-     }
-}    
+        }
+    }
+}
