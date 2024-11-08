@@ -13,15 +13,15 @@ spec:
     metadata:
       labels:
         app: $APP_NAME
-    imagePullSecrets:
-      - name: my-registry-key
     spec:
+      imagePullSecrets:
+        - name: my-registry-key
       containers:
-      - name: $APP_NAME
-        image: mauriciocamilo/demo-app:$IMAGE_NAME
-        imagePullPolicy: Always 
-        ports: 
-        - containerPort: 8080 
+        - name: $APP_NAME
+          image: mauriciocamilo/demo-app:$IMAGE_NAME
+          imagePullPolicy: Always 
+          ports: 
+            - containerPort: 8080 
 
 
 
