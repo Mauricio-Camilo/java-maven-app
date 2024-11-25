@@ -5,35 +5,31 @@ library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
     remote: 'https://github.com/Mauricio-Camilo/jenkins-shared-library.git',
     credentialsId: 'github-credentials'])
 
-def gv
-
 pipeline {   
     agent any
     tools {
         maven 'maven-3.9'
     }
+    environment {
+        IMAGE_NAME = 'mauriciocamilo/demo-app:jma-2.0'
+    }
     stages {
-        stage("init") {
+
+        stage("build app") {
             steps {
                 script {
-                    gv = load "script.groovy"
-                }
-            }
-        }
-        stage("build jar") {
-            steps {
-                script {
+                    echo 'building application jar...'
                     buildJar()
                 }
             }
         }
 
-        stage("build and push image") {
+        stage("build image") {
             steps {
                 script {
-                    buildImage 'mauriciocamilo/demo-app:jma-3.0'
+                    buildImage(env.IMAGE_NAME)
                     dockerLogin()
-                    dockerPush 'mauriciocamilo/demo-app:jma-3.0'
+                    dockerPush(env.IMAGE_NAME)
                 }
             }
         }
@@ -41,9 +37,18 @@ pipeline {
         stage("deploy") {
             steps {
                 script {
-                    gv.deployApp()
+                    echo 'deploying docker image to EC2...'
+                        
+                    def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
+                    def ec2Instance = "ec2-user@$35.180.151.121"
+
+                    sshagent(['server-ssh-key']) {
+                        sh "scp -o server-cmds.sh ${ec2Instance}:/home/ec2-user"
+                        sh "scp -o docker-compose.yaml ${ec2Instance}:/home/ec2-user"
+                        sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"
+                    }
                 }
-            }
-        }               
-    }
-} 
+            }               
+        }
+    } 
+}
